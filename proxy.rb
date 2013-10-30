@@ -61,7 +61,7 @@ class Proxy
       if line =~ /^Authorization: Basic (.+)$/
         username, password = *Base64.decode64($1).split(/:/)
         if password == "password"
-          prelude << "#{@user_header}: #{username}"
+          prelude << "#{@user_header}: #{username}\r\n"
           authenticated = true
         end
       elsif line.strip.empty?
@@ -75,6 +75,7 @@ class Proxy
     if authenticated
       to_server = TCPSocket.new(@server_address, @server_port)
 
+      puts prelude.join("")
       to_server.write(prelude.join(""))
 
       if content_len >= 0
@@ -113,7 +114,7 @@ if ARGV.size == 4
   proxy_port = ARGV[0].to_i
   server_address = ARGV[1].to_i
   server_port = ARGV[2].to_i
-  user_header = ARGV[3].to_i
+  user_header = ARGV[3]
 else
   puts 'Usage: proxy.rb proxy_port server_address server_port user_header'
   exit 1
